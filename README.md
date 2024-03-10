@@ -20,7 +20,7 @@ The repository contains the official implementation of "DPMesh: Exploiting Diffu
 
 ## 🫰 Acknowledgments
 
-We would like to express our sincere thanks to the author of [JOTR](https://github.com/xljh0520/JOTR) for the clear code base and quick response for my issues. 
+We would like to express our sincere thanks to the author of [JOTR](https://github.com/xljh0520/JOTR) for the clear code base and quick response for our issues. 
 
 We also thank [ControlNet](https://github.com/lllyasviel/ControlNet), [VPD](https://github.com/wl-zhao/VPD) and [LoRA](https://github.com/cloneofsimo/lora), for our code is partially borrowing from them.
 
