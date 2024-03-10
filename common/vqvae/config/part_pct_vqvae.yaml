@@ -1,0 +1,30 @@
+STAGE_I:
+  BASE: 
+    mask: False
+  ENCODER:
+    drop_rate: 0.2
+    num_blocks: 4
+    hidden_dim: 512
+    token_inter_dim: 64
+    hidden_inter_dim: 512
+    dropout: 0.0
+  DECODER:
+    num_blocks: 1
+    hidden_dim: 32
+    token_inter_dim: 64
+    hidden_inter_dim: 64
+    dropout: 0.0
+  CODEBOOK:
+    token_num: 40
+    token_dim: 256
+    token_class_num: 2048
+    ema_decay: 0.9
+  CLS_HEAD:
+    conv_num_blocks: 2
+    conv_channels: 256
+    dilation: 1
+    num_blocks: 4
+    hidden_dim: 64
+    token_inter_dim: 64
+    hidden_inter_dim: 256
+    dropout: 0.0

@@ -1,0 +1,5 @@
+*/output
+**/human_model_files
+**/smplpytorch
+*.ckpt
+**/__pycache__

@@ -1,0 +1,19 @@
+trainset_3d: [ 'MuCo_v2','Human36M_v2',"PW3D_train" ] #
+trainset_2d: [ 'My_MSCOCO_v2', 'CrowdPose_v2',"PW3D_train"] # ,"MPII"
+
+lr_dec_epoch: [10]
+end_epoch: 20
+lr: 0.0002
+lr_backbone: 0.0002
+lr_dec_factor: 1
+
+num_thread: 12
+train_batch_size: 20
+test_batch_size: 20
+enc_layers: 2
+dec_layers: 4
+weight_decay: 0.01
+# max_norm: 0.1
+use_cls_token: False
+upsample_net: True
+update_bbox: True
