@@ -1,8 +1,9 @@
 # DPMesh: Exploiting Diffusion Prior for Occluded Human Mesh Recovery
 *Yixuan Zhu\*, Ao Li\*, Yansong Tang†, Wenliang Zhao, Jie Zhou, Jiwen Lu*
 ----
-The repository contains the official implementation of "DPMesh: Exploiting Diffusion Prior for Occluded Human Mesh Recovery"
+The repository contains the official implementation for the paper "DPMesh: Exploiting Diffusion Prior for Occluded Human Mesh Recovery" (CVPR 2024).
 
+DPMesh is an innovative framework for occluded human <ins>**Mesh**</ins> recovery that capitalizes on the profound <ins>**D**</ins>iffusion <ins>**P**</ins>rior about object structure and spatial relationships embedded in a pre-trained text-to-image diffusion model.
 ## 📋 To Do List
 * [ ] Environmnet Settings.
 * [ ] Release model and inference code.
