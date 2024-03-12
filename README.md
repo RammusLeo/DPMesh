@@ -16,7 +16,23 @@ The repository contains the official implementation of "DPMesh: Exploiting Diffu
 ![](./assets/performance.png)
 ![](./assets/table.png)
 
-## ⚙️ Installation
+## 🚪Quick Start
+### ⚙️ 1. Installation
+``` bash
+conda env create -f environment.yaml
+conda activate dpmesh
+```
+### 2. Data Preparation
+
+**For evaluation only, you can just prepare 3DPW dataset.**
+
+
+### 3. Download Checkpoints
+
+Please download our pretrained checkpoints from [this link](https://cloud.tsinghua.edu.cn/d/1d6cd3ee30204bb59fce/) and put them under `./checkpoints`.
+
+### 4. Evaluation
+
 
 ## 🫰 Acknowledgments
 
