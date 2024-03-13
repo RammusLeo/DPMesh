@@ -15,8 +15,8 @@ class Config:
     with_contrastive = False
     ## dataset
     # MuCo, Human36M, MSCOCO, PW3D, FreiHAND
-    trainset_3d = ['Human36M','My_MuCo']  # 'Human36M', 'MuCo'
-    trainset_2d = ['CrowdPose','My_MSCOCO']  # 'MSCOCO', 'MPII', 'CrowdPose'
+    trainset_3d = ['Human36M','MuCo']  # 'Human36M', 'MuCo'
+    trainset_2d = ['CrowdPose','MSCOCO']  # 'MSCOCO', 'MPII', 'CrowdPose'
     testset = 'PW3D'  # 'MuPoTs' 'MSCOCO' Human36M, MSCOCO, 'PW3D'
 
     ## model setting
@@ -33,8 +33,6 @@ class Config:
     weight_decay = 0
     is_local = False
     update_bbox = False
-    metro_dir = '/mnt/disk_1/liao/METRO'
-    train_yaml = '/mnt/disk_1/liao/METRO/Tax-With-Crowd/train.yaml'
     img_scale_factor = 1.
     ## input, output
     input_img_shape = (256, 256)  #(256, 192)

@@ -1,4 +1,4 @@
-# DPMesh: Exploiting Diffusion Prior for Occluded Human Mesh Recovery
+# DPMesh: Exploiting Diffusion Prior for Occluded Human Mesh Recovery (CVPR 2024)
 *[Yixuan Zhu\*](https://eternalevan.github.io/), [Ao Li\*](https://rammusleo.github.io/), [Yansong Tang†](https://andytang15.github.io/), [Wenliang Zhao](https://wl-zhao.github.io/), [Jie Zhou](https://scholar.google.com/citations?user=6a79aPwAAAAJ&hl=en&authuser=1), [Jiwen Lu](http://ivg.au.tsinghua.edu.cn/Jiwen_Lu/)*
 ----
 The repository contains the official implementation for the paper "DPMesh: Exploiting Diffusion Prior for Occluded Human Mesh Recovery" (CVPR 2024).
@@ -18,7 +18,7 @@ DPMesh is an innovative framework for occluded human <ins>**Mesh**</ins> recover
 ![](./assets/performance.png)
 ![](./assets/table.png)
 
-## 🚪Quick Start
+## 😀Quick Start
 ### ⚙️ 1. Installation
 ``` bash
 conda env create -f environment.yaml
@@ -26,7 +26,27 @@ conda activate dpmesh
 ```
 ### 💾 2. Data Preparation
 
+We prepare the data in a samilar way as [3DCrowdNet](https://github.com/hongsukchoi/3DCrowdNet_RELEASE) & [JOTR](https://github.com/hongsukchoi/3DCrowdNet_RELEASE/blob/main/assets/directory.md). Please refer to [here](https://github.com/hongsukchoi/3DCrowdNet_RELEASE/blob/main/assets/directory.md) for *dataset*, *SMPL model*, *VPoser model*. 
+
+For 3DPW-OC and 3DPW-PC, we apply the same input key-points annotations as [JOTR](https://github.com/hongsukchoi/3DCrowdNet_RELEASE/blob/main/assets/directory.md). Please refer to [3DPW-OC](https://drive.google.com/file/d/1IPE8Yw7ysd97Uv6Uw24el1yRs2r_HtCR/view?usp=sharing) & [3DPW-PC](https://drive.google.com/file/d/1xzZvUj1lR1ECbzUI4JOooC_r2LF6Qs5m/view?usp=sharing).
+
 **For evaluation only, you can just prepare 3DPW dataset.**
+
+```
+|-- common
+|   |-- utils
+|   |   |-- human_model_files
+|   |   |-- smplpytorch
+|-- data 
+|   |-- J_regressor_extra.npy 
+|   |-- 3DPW
+|   |   |-- 3DPW_latest_test.json
+|   |   |-- 3DPW_oc.json
+|   |   |-- 3DPW_pc.json
+|   |   |-- 3DPW_validation_crowd_hhrnet_result.json
+|   |   |-- imageFiles
+|   |   |-- sequenceFiles
+```
 
 
 ### 🗂️ 3. Download Checkpoints
@@ -56,7 +76,7 @@ eval.py \
 --distributed \
 ```
 
-The evaluation process can be done with one Nvidia GeForce RTX 4090 GPU (24GB VRAM). 
+The evaluation process can be done with one Nvidia GeForce RTX 4090 GPU (24GB VRAM). You can use more GPUs by specifying the GPU ids.
 
 ## 🫰 Acknowledgments
 
