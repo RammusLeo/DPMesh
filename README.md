@@ -20,6 +20,8 @@ DPMesh is an innovative framework for occluded human <ins>**Mesh**</ins> recover
 
 ## 😀Quick Start
 ### ⚙️ 1. Installation
+
+We recommend you to use an [Anaconda](https://www.anaconda.com/) virtual environment. If you have installed Anaconda, run the following commands to create and activate a virtual environment.
 ``` bash
 conda env create -f environment.yaml
 conda activate dpmesh
