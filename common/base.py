@@ -83,43 +83,14 @@ class Trainer(Base):
             self.logger.info("Write snapshot into {}".format(file_path))
 
     def load_model(self, model, optimizer):
-        # model_file_list = glob.glob(osp.join(self.cfg.model_dir,'*.pth.tar'))
-        # cur_epoch = max([int(file_name[file_name.find('snapshot_') + 9 : file_name.find('.pth.tar')]) for file_name in model_file_list])
-        cur_epoch = 0
-        # ckpt_path = osp.join(self.cfg.model_dir, 'snapshot_' + str(cur_epoch) + '.pth.tar')
         ckpt_path = self.cfg.resume_ckpt
         print("load model from", ckpt_path)
         ckpt = torch.load(ckpt_path, map_location='cpu') 
-        # start_epoch = ckpt['epoch'] + 1
-        
-        # for k,v in ckpt['network'].items():
-        #     if "vqvae" not in k: # and "cascade_pose_out" not in k:
-        #         backbonedict[k]=v
-        #     if "backbone" not in k and "pose2feat" not in k and "down_linear" not in k and "conv2d_to_3d" not in k:
-        #         backbonedict[k]=v
-        # ckpt = backbonedict
-        # ckpt.pop("module.spose_shape_cam_param",None)
-
         try:
             ckpt = ckpt['network']
         except KeyError:
             pass
-        # ckpt.pop("module.backbone.sd_model.control_model.input_blocks.0.0.weight",None)
-        # backbonedict = {}
-        # for k,v in ckpt.items():
-        #     if "backbone" in k:
-        #         backbonedict[k]=v
-        # ckpt = backbonedict
-        # for k in list(ckpt.keys()):
-        #     if "control_model.input_hint_block" in k:
-        #         ckpt.pop(k, None)
         print("successfully get model!")
-        ckpt.pop("module.backbone.sd_model.model.diffusion_model.input_blocks.0.0.weight",None)
-        ckpt.pop("module.backbone.unet.unet.model.diffusion_model.input_blocks.0.0.weight",None)
-        # ckpt.pop("token_mlp.weight",None)
-        # ckpt.pop("token_mlp.bias",None)
-        # ckpt.pop("decoder_token_mlp.weight",None)
-        # ckpt.pop("module.spose_shape_cam_param",None)
         start_epoch = 1
         # model.load_state_dict(ckpt, strict=True)
         infoa,infob = model.load_state_dict(ckpt, strict=False)
@@ -127,8 +98,8 @@ class Trainer(Base):
             print("ckpt missing",infoa)
             print("ckpt unexpected",infob)
         # self.logger.info(info)
-        if cur_epoch != 0:
-            self.awl.load_state_dict(ckpt['awl'])
+        # if cur_epoch != 0:
+        #     self.awl.load_state_dict(ckpt['awl'])
         if dist.get_rank() == 0:
             self.logger.info('Load checkpoint from {}'.format(ckpt_path))
         return start_epoch, model.cuda(), optimizer
@@ -192,7 +163,7 @@ class Trainer(Base):
         return torch.utils.data.dataloader.default_collate(batch)
         
 
-    def _make_model(self):
+    def _make_model(self, is_eval=False):
         # prepare network
         if dist.get_rank() == 0:
             self.logger.info("Creating graph and optimizer...")
@@ -218,7 +189,7 @@ class Trainer(Base):
         # assert False
         self.awl = awl
         optimizer = self.get_optimizer(model)
-        if self.cfg.continue_train:
+        if self.cfg.continue_train and not is_eval:
             start_epoch, model, optimizer = self.load_model(model, optimizer)
         else:
             start_epoch = 0

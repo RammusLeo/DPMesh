@@ -32,15 +32,15 @@ def setup_seed(seed=42):
     torch.backends.cudnn.enabled = True
 
 best_dict = {
-    # '3dpw': {
-    #     'best_MPJPE': 1e10,
-    # },
-    # '3dpw-crowd':{
-    #     'best_MPJPE': 1e10,
-    # },
-    # '3dpw-pc':{
-    #     'best_MPJPE': 1e10,
-    # },
+    '3dpw': {
+        'best_MPJPE': 1e10,
+    },
+    '3dpw-crowd':{
+        'best_MPJPE': 1e10,
+    },
+    '3dpw-pc':{
+        'best_MPJPE': 1e10,
+    },
     '3dpw-oc':{
         'best_MPJPE': 1e10,
     },
@@ -90,14 +90,11 @@ def main():
     if args.cfg:
         yml_cfg = cfg.update(args)
     trainer = Trainer(cfg)
-    trainer._make_model()
+    trainer._make_model(is_eval=True)
     test_dataset_dict = {}
     for dataset_name in best_dict:
         if '3dpw' in dataset_name:
             testset_loader = PW3D(transforms.ToTensor(), data_name=dataset_name)
-        else:
-            assert False
-            testset_loader = CMU_Panotic()
         if cfg.distributed:
             testset_sampler = torch.utils.data.distributed.DistributedSampler(testset_loader)
         else:
@@ -111,13 +108,77 @@ def main():
             'dataset': testset_loader
         }
     for data_name in best_dict.keys():
-        # ckpt_path = os.path.join('./checkpoint', '{}_best_ckpt.pth.tar'.format(data_name))
-        # ckpt = torch.load(ckpt_path, map_location='cpu')
-        # trainer.model.load_state_dict(ckpt)
+        ckpt_path = os.path.join('./checkpoints', '{}_best_ckpt.pth.tar'.format(data_name))
+        ckpt = torch.load(ckpt_path, map_location='cpu')
+        trainer.model.load_state_dict(ckpt)
         trainer.model.eval()
         eval(0, trainer, data_name, test_dataset_dict[data_name]['dataset'], test_dataset_dict[data_name]['loader'])
 
 def eval(epoch, trainer, dataset_name, testset_loader, test_batch_generator):
+    trainer.model.eval()
+    eval_result = {}
+    cur_sample_idx = 0
+    for itr, (inputs, targets, meta_info) in enumerate(tqdm(test_batch_generator)):
+        inputs = {k: v.cuda() for k, v in inputs.items()}
+        targets = {k: v.cuda() for k, v in targets.items()}
+        with torch.cuda.amp.autocast(enabled=True):
+            with torch.no_grad():
+                out = trainer.model(inputs, targets, meta_info, 'test')
+        out = {k: v.cpu().numpy() for k,v in out.items()}
+        key = list(out.keys())[0]
+        batch_size = out[key].shape[0]
+        out = [{k: v[bid] for k,v in out.items()} for bid in range(batch_size)] # batch_size * dict
+        # if not dist.is_initialized():
+        cur_eval_result = testset_loader.evaluate(out, cur_sample_idx, meta_info) # dict of list
+        for k,v in cur_eval_result.items():
+            if k in eval_result: 
+                eval_result[k] += v
+            else: 
+                eval_result[k] = v
+        cur_sample_idx += len(out)
+
+    mpjpe = torch.tensor(np.mean(eval_result['mpjpe'])).float().cuda().flatten()
+    pa_mpjpe = torch.tensor(np.mean(eval_result['pa_mpjpe'])).float().cuda().flatten()
+    mpvpe = torch.tensor(np.mean(eval_result['mpvpe'])).float().cuda().flatten()
+    samples = torch.tensor(len(eval_result['mpjpe'])).float().cuda().flatten()
+    
+    dist.barrier()
+    gather_list = [torch.zeros_like(mpjpe) for _ in range(dist.get_world_size())]
+    dist.all_gather(gather_list, mpjpe)
+    mpjpe_pre_rank = torch.stack(gather_list).flatten()
+    dist.all_gather(gather_list, pa_mpjpe)
+    pa_mpjpe_pre_rank = torch.stack(gather_list).flatten()
+    dist.all_gather(gather_list, mpvpe)
+    mpvpe_pre_rank = torch.stack(gather_list).flatten()
+    dist.all_gather(gather_list, samples)
+    samples_pre_rank = torch.stack(gather_list).flatten()
+
+    all_samples = samples_pre_rank.sum()
+    all_mpjpe = mpjpe_pre_rank * samples_pre_rank
+    all_pa_mpjpe = pa_mpjpe_pre_rank * samples_pre_rank
+    all_mpvpe = mpvpe_pre_rank * samples_pre_rank
+
+    mean_mpjpe = all_mpjpe.sum() / all_samples
+    mean_pa_mpjpe = all_pa_mpjpe.sum() / all_samples
+    mean_mpvpe = all_mpvpe.sum() / all_samples
+
+    result_dict = {
+        'mpjpe': mean_mpjpe.item(),
+        'pa_mpjpe': mean_pa_mpjpe.item(),
+        'mpvpe': mean_mpvpe.item(),
+    }
+        
+    if dist.get_rank() == 0:
+        print('{} {}'.format(dataset_name, epoch))
+        for k,v in result_dict.items():
+            print(f'{k}: {v:.2f}')
+        
+        message = [f'{k}: {v:.2f}' for k, v in result_dict.items()]
+        trainer.logger.info('{} '.format(dataset_name) + ' '.join(message))         
+        
+    dist.barrier()
+
+def eval_occ(epoch, trainer, dataset_name, testset_loader, test_batch_generator):
     trainer.model.eval()
     eval_result = {}
     cur_sample_idx = 0
@@ -140,23 +201,16 @@ def eval(epoch, trainer, dataset_name, testset_loader, test_batch_generator):
             else: 
                 eval_result[k] = v
         cur_sample_idx += len(out)
-        # else:
-        #     index_list = meta_info['idx'].flatten().long().tolist()
-        #     cur_eval_result = testset_loader.random_idx_eval(out, index_list)
-        #     for k,v in cur_eval_result.items():
-        #         if k in eval_result: 
-        #             eval_result[k] += v
-        #         else: 
-        #             eval_result[k] = v
+
     mpjpe = torch.tensor(np.mean(eval_result['mpjpe'])).float().cuda().flatten()
     pa_mpjpe = torch.tensor(np.mean(eval_result['pa_mpjpe'])).float().cuda().flatten()
     mpvpe = torch.tensor(np.mean(eval_result['mpvpe'])).float().cuda().flatten()
     samples = torch.tensor(len(eval_result['mpjpe'])).float().cuda().flatten()
     
-    # mpjpe_visable = torch.tensor(np.mean(eval_result['mpjpe_visable'])).float().cuda().flatten()
-    # pa_mpjpe_visable = torch.tensor(np.mean(eval_result['pa_mpjpe_visable'])).float().cuda().flatten()
-    # mpjpe_invisable = torch.tensor(np.mean(eval_result['mpjpe_invisable'])).float().cuda().flatten()
-    # pa_mpjpe_invisable = torch.tensor(np.mean(eval_result['pa_mpjpe_invisable'])).float().cuda().flatten()
+    mpjpe_visable = torch.tensor(np.mean(eval_result['mpjpe_visable'])).float().cuda().flatten()
+    pa_mpjpe_visable = torch.tensor(np.mean(eval_result['pa_mpjpe_visable'])).float().cuda().flatten()
+    mpjpe_invisable = torch.tensor(np.mean(eval_result['mpjpe_invisable'])).float().cuda().flatten()
+    pa_mpjpe_invisable = torch.tensor(np.mean(eval_result['pa_mpjpe_invisable'])).float().cuda().flatten()
     
     dist.barrier()
     gather_list = [torch.zeros_like(mpjpe) for _ in range(dist.get_world_size())]
@@ -168,14 +222,14 @@ def eval(epoch, trainer, dataset_name, testset_loader, test_batch_generator):
     mpvpe_pre_rank = torch.stack(gather_list).flatten()
     dist.all_gather(gather_list, samples)
     samples_pre_rank = torch.stack(gather_list).flatten()
-    # dist.all_gather(gather_list, mpjpe_visable)
-    # mpjpe_visable_pre_rank = torch.stack(gather_list).flatten()
-    # dist.all_gather(gather_list, pa_mpjpe_visable)
-    # pa_mpjpe_visable_pre_rank = torch.stack(gather_list).flatten()
-    # dist.all_gather(gather_list, mpjpe_invisable)
-    # mpjpe_invisable_pre_rank = torch.stack(gather_list).flatten()
-    # dist.all_gather(gather_list, pa_mpjpe_invisable)
-    # pa_mpjpe_invisable_pre_rank = torch.stack(gather_list).flatten()
+    dist.all_gather(gather_list, mpjpe_visable)
+    mpjpe_visable_pre_rank = torch.stack(gather_list).flatten()
+    dist.all_gather(gather_list, pa_mpjpe_visable)
+    pa_mpjpe_visable_pre_rank = torch.stack(gather_list).flatten()
+    dist.all_gather(gather_list, mpjpe_invisable)
+    mpjpe_invisable_pre_rank = torch.stack(gather_list).flatten()
+    dist.all_gather(gather_list, pa_mpjpe_invisable)
+    pa_mpjpe_invisable_pre_rank = torch.stack(gather_list).flatten()
 
 
     all_samples = samples_pre_rank.sum()
@@ -183,28 +237,28 @@ def eval(epoch, trainer, dataset_name, testset_loader, test_batch_generator):
     all_pa_mpjpe = pa_mpjpe_pre_rank * samples_pre_rank
     all_mpvpe = mpvpe_pre_rank * samples_pre_rank
 
-    # all_mpjpe_visable = mpjpe_visable_pre_rank * samples_pre_rank
-    # all_pa_mpjpe_visable = pa_mpjpe_visable_pre_rank * samples_pre_rank
-    # all_mpjpe_invisable = mpjpe_invisable_pre_rank * samples_pre_rank
-    # all_pa_mpjpe_invisable = pa_mpjpe_invisable_pre_rank * samples_pre_rank
+    all_mpjpe_visable = mpjpe_visable_pre_rank * samples_pre_rank
+    all_pa_mpjpe_visable = pa_mpjpe_visable_pre_rank * samples_pre_rank
+    all_mpjpe_invisable = mpjpe_invisable_pre_rank * samples_pre_rank
+    all_pa_mpjpe_invisable = pa_mpjpe_invisable_pre_rank * samples_pre_rank
 
     mean_mpjpe = all_mpjpe.sum() / all_samples
     mean_pa_mpjpe = all_pa_mpjpe.sum() / all_samples
     mean_mpvpe = all_mpvpe.sum() / all_samples
 
-    # mean_mpjpe_visable = all_mpjpe_visable.sum() / all_samples
-    # mean_pa_mpjpe_visable = all_pa_mpjpe_visable.sum() / all_samples
-    # mean_mpjpe_invisable = all_mpjpe_invisable.sum() / all_samples
-    # mean_pa_mpjpe_invisable = all_pa_mpjpe_invisable.sum() / all_samples
+    mean_mpjpe_visable = all_mpjpe_visable.sum() / all_samples
+    mean_pa_mpjpe_visable = all_pa_mpjpe_visable.sum() / all_samples
+    mean_mpjpe_invisable = all_mpjpe_invisable.sum() / all_samples
+    mean_pa_mpjpe_invisable = all_pa_mpjpe_invisable.sum() / all_samples
     
     result_dict = {
         'mpjpe': mean_mpjpe.item(),
         'pa_mpjpe': mean_pa_mpjpe.item(),
         'mpvpe': mean_mpvpe.item(),
-        # 'mpjpe_visable': mean_mpjpe_visable.item(),
-        # 'pa_mpjpe_visable': mean_pa_mpjpe_visable.item(),
-        # 'mpjpe_invisable': mean_mpjpe_invisable.item(),
-        # 'pa_mpjpe_invisable': mean_pa_mpjpe_invisable.item(),
+        'mpjpe_visable': mean_mpjpe_visable.item(),
+        'pa_mpjpe_visable': mean_pa_mpjpe_visable.item(),
+        'mpjpe_invisable': mean_mpjpe_invisable.item(),
+        'pa_mpjpe_invisable': mean_pa_mpjpe_invisable.item(),
     }
         
     if dist.get_rank() == 0:
@@ -213,7 +267,6 @@ def eval(epoch, trainer, dataset_name, testset_loader, test_batch_generator):
             print(f'{k}: {v:.2f}')
         
         message = [f'{k}: {v:.2f}' for k, v in result_dict.items()]
-        # message = ' '.join(message)
         trainer.logger.info('{} '.format(dataset_name) + ' '.join(message))         
         
     dist.barrier()
