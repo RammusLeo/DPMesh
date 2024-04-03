@@ -28,6 +28,7 @@ We recommend you to use an [Anaconda](https://www.anaconda.com/) virtual environ
 ``` bash
 conda env create -f environment.yaml
 conda activate dpmesh
+pip install git+https://github.com/cloneofsimo/lora.git
 ```
 ### 💾 2. Data Preparation
 

@@ -18,7 +18,7 @@ from nets.transformer import bulid_transformer_encoder, PositionEmbeddingSine, b
 from nets.infonce import AllGather, intra_info_nce_loss, inter_info_nce_loss
 from utils.transforms import rot6d_to_axis_angle,rotation_matrix_to_angle_axis
 from common.vqvae.pct_vqvae import PCT_VQVAE_MODEL
-from vpd.vpdencoder import VPDEncoder
+from common.vpd.vpdencoder import VPDEncoder
 allgather = AllGather.apply
 
 class VQ_Model(nn.Module):

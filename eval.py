@@ -4,7 +4,7 @@ import torch
 import torch.distributed as dist
 import sys
 from config import cfg
-from common.base_v2 import Trainer
+from common.base import Trainer
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from tqdm import tqdm

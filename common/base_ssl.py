@@ -15,7 +15,7 @@ from torch.nn.parallel.data_parallel import DataParallel
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data.distributed import DistributedSampler
-from common.my_vq_model_ssl2 import get_model
+from common.model import get_model
 from dataloader.dataset import MultipleDatasets
 from common.utils.augmentation import GaussianBlur,Solarization
 # dataset_list = ['CrowdPose', 'Human36M', 'MSCOCO', 'MuCo', 'PW3D']
