@@ -36,7 +36,7 @@ We prepare the data in a samilar way as [3DCrowdNet](https://github.com/hongsukc
 
 For 3DPW-OC and 3DPW-PC, we apply the same input key-points annotations as [JOTR](https://github.com/hongsukchoi/3DCrowdNet_RELEASE/blob/main/assets/directory.md). Please refer to [3DPW-OC](https://drive.google.com/file/d/1IPE8Yw7ysd97Uv6Uw24el1yRs2r_HtCR/view?usp=sharing) & [3DPW-PC](https://drive.google.com/file/d/1xzZvUj1lR1ECbzUI4JOooC_r2LF6Qs5m/view?usp=sharing).
 
-**For evaluation only, you can just prepare 3DPW dataset.**
+**For evaluation only, you can just prepare 3DPW dataset (images and annotations) and the joint regressors**, we provide the directory structure below.
 
 ```
 |-- common
@@ -52,6 +52,10 @@ For 3DPW-OC and 3DPW-PC, we apply the same input key-points annotations as [JOTR
 |   |   |-- 3DPW_validation_crowd_hhrnet_result.json
 |   |   |-- imageFiles
 |   |   |-- sequenceFiles
+|   |-- Human36M  
+|   |   |-- J_regressor_h36m_correct.npy
+|   |-- MSCOCO  
+|   |   |-- J_regressor_coco_hip_smpl.npy
 ```
 
 
@@ -90,7 +94,22 @@ We would like to express our sincere thanks to the author of [JOTR](https://gith
 
 We also thank [ControlNet](https://github.com/lllyasviel/ControlNet), [VPD](https://github.com/wl-zhao/VPD) and [LoRA](https://github.com/cloneofsimo/lora), for our code is partially borrowing from them.
 
+## Q & A
+1. If you find an error as below, please refer to [this link](https://stackoverflow.com/questions/65637222/runtimeerror-subtraction-the-operator-with-a-bool-tensor-is-not-supported) for help.
+```bash
+RuntimeError: Subtraction, the `-` operator, with a bool tensor is not supported. If you are trying to invert a mask, use the `~` or `logical_not()` operator instead.
+```
+
+
 ## 🔖 Citation
+```
+@article{zhu2024dpmesh,
+  title={DPMesh: Exploiting Diffusion Prior for Occluded Human Mesh Recovery},
+  author={Zhu, Yixuan and Li, Ao and Tang, Yansong and Zhao, Wenliang and Zhou, Jie and Lu, Jiwen},
+  journal={arXiv preprint arXiv:2404.01424},
+  year={2024}
+}
+```
 
 ## 🔑 License
 

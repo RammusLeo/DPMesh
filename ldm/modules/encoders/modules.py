@@ -92,7 +92,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         "pooled",
         "hidden"
     ]
-    def __init__(self, version="/home/liao/.cache/huggingface/hub/clip-vit-large-patch14", device="cuda", max_length=77,
+    def __init__(self, version="clip-vit-large-patch14", device="cuda", max_length=77,
                  freeze=True, layer="last", layer_idx=None):  # clip-vit-base-patch32
         super().__init__()
         assert layer in self.LAYERS
@@ -146,7 +146,6 @@ class FrozenOpenCLIPEmbedder(AbstractEncoder):
         super().__init__()
         assert layer in self.LAYERS
         model, _, _ = open_clip.create_model_and_transforms(arch, device=torch.device('cpu'), 
-                                                            # pretrained='/home/liao_intern/.cache/huggingface/hub/models--laion--CLIP-ViT-L-14-laion2B-s32B-b82K/snapshots/b91caf0ba0bef4ee9ededa5674c12576fc46ed04/open_clip_pytorch_model.bin'
                                                             pretrained=None
                                                             )
         del model.visual

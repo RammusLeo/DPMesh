@@ -34,16 +34,16 @@ class VPDEncoder(nn.Module):
         ])
         self.apply(self._init_weights)
         self.sd_model = create_model('./common/vpd/cldm_v15.yaml').cpu()
-        ckpt = load_state_dict('./common/vpd/control_sd15_openpose.pth', location='cpu')
-        ckpt.pop("control_model.input_blocks.0.0.weight",None)
+        # ckpt = load_state_dict('./common/vpd/control_sd15_openpose.pth', location='cpu')
+        # ckpt.pop("control_model.input_blocks.0.0.weight",None)
         # for k in list(ckpt.keys()):
         #     if "control_model.input_hint_block" in k:
         #         ckpt.pop(k, None)
 
-        a,b = self.sd_model.load_state_dict(
-            ckpt, strict=False)
-        print("ldm missing keys:{}".format(a))
-        print("ldm unexpected keys:{}".format(b))
+        # a,b = self.sd_model.load_state_dict(
+        #     ckpt, strict=False)
+        # print("ldm missing keys:{}".format(a))
+        # print("ldm unexpected keys:{}".format(b))
         self.unet_lora_params = self.sd_model.unet_lora_params
         self.encoder_vq = self.sd_model.first_stage_model
         self.unet = UNetWrapper(self.sd_model, use_attn=True)
