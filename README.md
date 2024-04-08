@@ -94,7 +94,7 @@ We would like to express our sincere thanks to the author of [JOTR](https://gith
 
 We also thank [ControlNet](https://github.com/lllyasviel/ControlNet), [VPD](https://github.com/wl-zhao/VPD) and [LoRA](https://github.com/cloneofsimo/lora), for our code is partially borrowing from them.
 
-## Q & A
+## ❓ Q & A
 1. If you find an error as below, please refer to [this link](https://stackoverflow.com/questions/65637222/runtimeerror-subtraction-the-operator-with-a-bool-tensor-is-not-supported) for help.
 ```bash
 RuntimeError: Subtraction, the `-` operator, with a bool tensor is not supported. If you are trying to invert a mask, use the `~` or `logical_not()` operator instead.
