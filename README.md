@@ -126,7 +126,7 @@ We would like to express our sincere thanks to the author of [JOTR](https://gith
 
 We also thank [ControlNet](https://github.com/lllyasviel/ControlNet), [VPD](https://github.com/wl-zhao/VPD) and [LoRA](https://github.com/cloneofsimo/lora), for our code is partially borrowing from them.
 
-## Q & A
+## ❓ Q & A
 1. If you find an error as below, please refer to [this link](https://stackoverflow.com/questions/65637222/runtimeerror-subtraction-the-operator-with-a-bool-tensor-is-not-supported) for help.
 ```bash
 RuntimeError: Subtraction, the `-` operator, with a bool tensor is not supported. If you are trying to invert a mask, use the `~` or `logical_not()` operator instead.
@@ -135,10 +135,11 @@ RuntimeError: Subtraction, the `-` operator, with a bool tensor is not supported
 
 ## 🔖 Citation
 ```
-@article{zhu2024dpmesh,
+@inproceedings{zhu2024dpmesh,
   title={DPMesh: Exploiting Diffusion Prior for Occluded Human Mesh Recovery},
   author={Zhu, Yixuan and Li, Ao and Tang, Yansong and Zhao, Wenliang and Zhou, Jie and Lu, Jiwen},
-  journal={arXiv preprint arXiv:2404.01424},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={1101--1110},
   year={2024}
 }
 ```
