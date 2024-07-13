@@ -71,9 +71,9 @@ Please download our pretrained checkpoints from [this link](https://cloud.tsingh
 |--|-- 3dpw-pc_best_ckpt.pth.tar
 ```
 
-### 📊 4. Test & Evaluation
+### 📊 4. Evaluation
 
-You can test DPMesh use following commands:
+You can evaluate DPMesh use following commands:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
@@ -87,6 +87,38 @@ eval.py \
 ```
 
 The evaluation process can be done with one Nvidia GeForce RTX 4090 GPU (24GB VRAM). You can use more GPUs by specifying the GPU ids.
+
+### 🎨 5. Rendering
+
+You can render the video with the human mesh on it. First of all, you may follow these steps below to pre-process your video data.
+
+1. Create a directory in `./demo` and save your video in `./demo/testvideo/testvideo.mp4`
+    ```
+    |-- demo
+    |--|-- testvideo
+    |--|--|-- annotations
+    |--|--|-- images
+    |--|--|-- renderimgs
+    |--|--|-- testvideo.mp4
+    ```
+2. Split your video into image frames (using [ffmpeg](https://ffmpeg.org/)) and save the images in `./demo/testvideo/images`
+3. Using the off-the-shelf detectors like [AlphaPose](https://github.com/MVIG-SJTU/AlphaPose) to fetch the keypoints of each person in each image, saving the `.pkl` results in `./demo/testvideo/annotations`. You can use whatever detectors you like, but please pay attention to the key-points format. Here we use [Openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) format, which has 17 key-points of each person.
+4. Setting the `renderimg = 'testvideo'` in `config.py` and choose the pre-trained model to resume (like 3dpw_best_ckpt.pth.tar).
+
+Now you can run `render.py` to render the human mesh:
+```bash
+CUDA_VISIBLE_DEVICES=0 \
+torchrun \
+--master_port 29591 \
+--nproc_per_node 1 \
+render.py \
+--cfg ./configs/main_train.yml \
+--exp_id="render" \
+--distributed \
+```
+
+Finally you can combine the rendered images in `./demo/testvideo/renderimgs` together into a video (you can also use [ffmpeg](https://ffmpeg.org/)). 
+
 
 ## 🫰 Acknowledgments
 

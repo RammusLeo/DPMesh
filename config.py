@@ -11,13 +11,16 @@ import torch.distributed as dist
 
 class Config:
     save_folder = '/path/to/your/save/folder'
-    resume_ckpt = ''
+    resume_ckpt = 'checkpoints/3dpw_best_ckpt.pth.tar'
     with_contrastive = False
     ## dataset
     # MuCo, Human36M, MSCOCO, PW3D, FreiHAND
     trainset_3d = ['Human36M','MuCo']  # 'Human36M', 'MuCo'
     trainset_2d = ['CrowdPose','MSCOCO']  # 'MSCOCO', 'MPII', 'CrowdPose'
     testset = 'PW3D'  # 'MuPoTs' 'MSCOCO' Human36M, MSCOCO, 'PW3D'
+
+    ## render
+    renderimg = 'testvideo'
 
     ## model setting
     resnet_type = 50  # 50, 101, 152
