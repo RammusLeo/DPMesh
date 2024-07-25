@@ -1,5 +1,5 @@
-trainset_3d: ['MuCo_v2','Human36M_v2' ] #
-trainset_2d: ['My_MSCOCO_v2', 'CrowdPose_v2'] # 
+trainset_3d: ['MuCo','Human36M' ] #
+trainset_2d: ['MSCOCO', 'CrowdPose'] # 
 
 
 lr_dec_epoch: [10]

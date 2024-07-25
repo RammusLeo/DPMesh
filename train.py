@@ -181,17 +181,10 @@ def main():
             trainer.optimizer.zero_grad()
             with amp.autocast(args.use_mixed_precision):
                 loss = trainer.model(inputs, targets, meta_info, 'train')
-                intra_nce = loss.pop('intra_nce_0', 0)
-                inter_nce = loss.pop('inter_nce_0', 0)
 
                 loss = {k: loss[k].mean() for k in loss}
                 loss = trainer.awl(loss)
-                _loss = sum(loss[k] for k in loss) + intra_nce * cfg.intra_weight + inter_nce * cfg.inter_weight
-            # for k,v in trainer.model.named_parameters():
-            #     if v.requires_grad == False:
-            #         print(k,": ", v)
-            # assert False
-            # backward
+                _loss = sum(loss[k] for k in loss)
             with amp.autocast(False):
                 _loss = scaler.scale(_loss)
                 _loss.backward()
@@ -220,15 +213,13 @@ def main():
                     '%.2fh/epoch' % (trainer.tot_timer.average_time / 3600. * len(trainer.batch_generator)),
                     ]
                 screen += ['%s: %.4f' % ('loss_' + k, v.detach()) for k,v in loss.items()]
-                screen += ['intra_nce: %.4f' % intra_nce]
-                screen += ['inter_nce: %.4f' % inter_nce]
                 trainer.logger.info(' '.join(screen))
 
             trainer.tot_timer.toc()
             trainer.tot_timer.tic()
             trainer.read_timer.tic()
 
-            if itr % 4000 == 0 and itr != 0:
+            if itr % 1000 == 0 and itr != 0:
                 trainer.model.eval()
                 for data_name in best_dict.keys():
                     eval(epoch, trainer, data_name, test_dataset_dict[data_name]['dataset'], test_dataset_dict[data_name]['loader'])
@@ -243,14 +234,6 @@ def main():
         # eval model
         for data_name in best_dict.keys():
             eval(epoch, trainer, data_name, test_dataset_dict[data_name]['dataset'], test_dataset_dict[data_name]['loader'])
-        # if dist.get_rank() == 0:
-        #     # save model
-        #     trainer.save_model({
-        #         'epoch': epoch,
-        #         'network': trainer.model.state_dict(),
-        #         'optimizer': trainer.optimizer.state_dict(),
-        #         'awl': trainer.awl.state_dict(),
-        #     }, epoch)
         dist.barrier()
 
     

@@ -7,10 +7,11 @@
 The repository contains the official implementation for the paper "DPMesh: Exploiting Diffusion Prior for Occluded Human Mesh Recovery" (CVPR 2024).
 
 DPMesh is an innovative framework for occluded human <ins>**Mesh**</ins> recovery that capitalizes on the profound <ins>**D**</ins>iffusion <ins>**P**</ins>rior about object structure and spatial relationships embedded in a pre-trained text-to-image diffusion model.
+
 ## 📋 To-Do List
 
 * [x] Release model and inference code.
-* [ ] Release code for training dataloader .
+* [x] Release code for training dataloader .
 
 ## 💡 Pipeline
 
@@ -45,6 +46,11 @@ For 3DPW-OC and 3DPW-PC, we apply the same input key-points annotations as [JOTR
 |   |   |-- smplpytorch
 |-- data 
 |   |-- J_regressor_extra.npy 
+|   |-- annotations
+|   |   |-- crowdpose.pkl
+|   |   |-- muco.pkl
+|   |   |-- human36m.pkl
+|   |   |-- mscoco.pkl
 |   |-- 3DPW
 |   |   |-- 3DPW_latest_test.json
 |   |   |-- 3DPW_oc.json
@@ -52,9 +58,19 @@ For 3DPW-OC and 3DPW-PC, we apply the same input key-points annotations as [JOTR
 |   |   |-- 3DPW_validation_crowd_hhrnet_result.json
 |   |   |-- imageFiles
 |   |   |-- sequenceFiles
+|   |-- CrowdPose
+|   |   |-- images
+|   |   |-- annotations
+|   |-- MuCo
+|   |   |-- images
+|   |   |-- annotations
 |   |-- Human36M  
+|   |   |-- images
+|   |   |-- annotations
 |   |   |-- J_regressor_h36m_correct.npy
 |   |-- MSCOCO  
+|   |   |-- images
+|   |   |-- annotations
 |   |   |-- J_regressor_coco_hip_smpl.npy
 ```
 
@@ -66,7 +82,6 @@ Please download our pretrained checkpoints from [this link](https://cloud.tsingh
 ```
 |-- checkpoints
 |--|-- 3dpw_best_ckpt.pth.tar
-|--|-- 3dpw-crowd_best_ckpt.pth.tar
 |--|-- 3dpw-oc_best_ckpt.pth.tar
 |--|-- 3dpw-pc_best_ckpt.pth.tar
 ```
@@ -90,7 +105,16 @@ The evaluation process can be done with one Nvidia GeForce RTX 4090 GPU (24GB VR
 
 ### 🎨 5. Rendering
 
-You can render the video with the human mesh on it. First of all, you may follow these steps below to pre-process your video data.
+You can render the video with the human mesh on it. First of all, you need to install some requirements for rendering. Here are some tips from ![OSX](https://github.com/IDEA-Research/OSX?tab=readme-ov-file#3-quick-demo)
+
+```
+1、Install oemesa follow https://pyrender.readthedocs.io/en/latest/install/
+2、Reinstall the specific pyopengl fork: https://github.com/mmatl/pyopengl
+3、Set opengl's backend to egl or osmesa via os.environ["PYOPENGL_PLATFORM"] = "egl"
+```
+
+Then you may follow these steps below to pre-process your video data.
+
 
 1. Create a directory in `./demo` and save your video in `./demo/testvideo/testvideo.mp4`
     ```
@@ -119,6 +143,25 @@ render.py \
 
 Finally you can combine the rendered images in `./demo/testvideo/renderimgs` together into a video (you can also use [ffmpeg](https://ffmpeg.org/)). 
 
+### 🔧 6. Training
+
+Instead of computing the 3D joints coordinates during training process, we prepare these annotations before and save them into `.pkl` files, please refer to [this link](https://cloud.tsinghua.edu.cn/d/1d6cd3ee30204bb59fce/) for our annotations. 
+
+Now you can run `train.py` to train our model:
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+torchrun \
+--master_port 29592 \
+--nproc_per_node 8 \
+train.py \
+--cfg ./configs/main_train.yml \
+--exp_id="train" \
+--distributed \
+```
+
+Furthermore, if you want to train from the scratch to evaluate the potential of diffusion priors, you can uncomment the codes in `./common/vpd/vpdencoder_useattn.py`, line 38. You can download the OpenPose-ControlNet model from ![control_v11p_sd15_openpose.pth](https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth?download=true).
+
+Enjoy it! 
 
 ## 🫰 Acknowledgments
 
