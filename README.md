@@ -105,7 +105,7 @@ The evaluation process can be done with one Nvidia GeForce RTX 4090 GPU (24GB VR
 
 ### 🎨 5. Rendering
 
-You can render the video with the human mesh on it. First of all, you need to install some requirements for rendering. Here are some tips from ![OSX](https://github.com/IDEA-Research/OSX?tab=readme-ov-file#3-quick-demo)
+You can render the video with the human mesh on it. First of all, you need to install some requirements for rendering. Here are some tips from [OSX](https://github.com/IDEA-Research/OSX?tab=readme-ov-file#3-quick-demo)
 
 ```
 1、Install oemesa follow https://pyrender.readthedocs.io/en/latest/install/
