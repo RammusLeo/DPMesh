@@ -159,7 +159,7 @@ train.py \
 --distributed \
 ```
 
-Furthermore, if you want to train from the scratch to evaluate the potential of diffusion priors, you can uncomment the codes in `./common/vpd/vpdencoder_useattn.py`, line 38. You can download the OpenPose-ControlNet model from ![control_v11p_sd15_openpose.pth](https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth?download=true).
+Furthermore, if you want to train from the scratch to evaluate the potential of diffusion priors, you can uncomment the codes in `./common/vpd/vpdencoder_useattn.py`, line 38. You can download the OpenPose-ControlNet model from [control_v11p_sd15_openpose.pth](https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth?download=true).
 
 Enjoy it! 
 
